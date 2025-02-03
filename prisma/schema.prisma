@@ -1,0 +1,76 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                  Int     @id @default(autoincrement())
+  name                String
+  surname             String?
+  email               String  @unique
+  password            String
+  role                String? //admin(profes) vip(alumno) null(visitante)
+  active              Boolean @default(true)
+  acceptNotifications Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updateAt  DateTime @updatedAt
+
+  books   Book[]
+  reviews Review[]
+}
+
+model Book {
+  id          Int      @id @default(autoincrement())
+  title       String
+  author      String
+  genre       String
+  description String?
+  publishedAt DateTime
+
+  createdAt DateTime @default(now())
+  updateAt  DateTime @updatedAt
+
+  idUser Int
+  user   User @relation(fields: [idUser], references: [id])
+
+  idCategory Int?
+  category   Category? @relation(fields: [idCategory], references: [id])
+
+  reviews Review[]
+}
+
+model Review {
+  idUser  Int
+  idBook  Int
+  content String
+  rating  Int
+
+  createdAt DateTime @default(now())
+  updateAt  DateTime @updatedAt
+
+  user User @relation(fields: [idUser], references: [id])
+  book Book @relation(fields: [idBook], references: [id])
+
+  @@id([idUser, idBook])
+}
+
+model Category {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  createdAt DateTime @default(now())
+  updateAt  DateTime @updatedAt
+
+  books Book[]
+}
