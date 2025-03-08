@@ -18,7 +18,7 @@ app.use(cookieParser())
 //todo limitar cors
 //cambiar la url cuando deploy
 app.use(cors({
-    origin: ['http://localhost:5175', 'https://bookify-fronted.onrender.com'],
+    origin: ['http://localhost:5173', 'https://bookify-fronted.onrender.com'],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization']

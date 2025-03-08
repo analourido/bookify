@@ -19,12 +19,9 @@ export const bookValidation = [
     body('description')
         .optional()
         .isLength({ max: 2000 }).withMessage('La descripción no puede superar los 2000 caracteres'),
-    body('publishedDate')
+    body('publishedAt')
         .optional()
         .isISO8601().toDate().withMessage('Formato de fecha incorrecto'),
-    body('finishedDate')
-        .optional()
-        .isISO8601().toDate().withMessage('Formato de fecha incorrecto')
 ];
 
 export const categoryValidation = [
