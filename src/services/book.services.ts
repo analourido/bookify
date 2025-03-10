@@ -11,15 +11,22 @@ export class BookService {
         return findBook
     }
 
-    static async getAll(title: string = '') {
+    static async getAll(searchQuery: string = '') {
 
         return await prisma.book.findMany({
             where: {
-                ...(title && {
-                    title: {
-                        contains: title,
-                    }
-                })
+                OR: [
+                    {
+                        title: {
+                            contains: searchQuery,
+                        },
+                    },
+                    {
+                        author: {
+                            contains: searchQuery,
+                        },
+                    },
+                ],
             },
             orderBy: {
                 createdAt: 'desc'
@@ -62,6 +69,18 @@ export class BookService {
         } catch (error) {
             throw new HttpException(404, "Book not found");
         }
+    }
+
+    static async getByCategoryId(categoryId: number): Promise<Book[]> {
+        return await prisma.book.findMany({
+            where: {
+                idCategory: categoryId,
+            },
+            orderBy: {
+                createdAt: 'desc'
+            },
+            take: 100,
+        });
     }
 
 
