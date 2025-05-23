@@ -3,7 +3,6 @@
 
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["driverAdapters"]
@@ -11,7 +10,7 @@ generator client {
 
 datasource db {
   provider = "sqlite"
-  url      = "file:./dev.db"
+  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -20,15 +19,22 @@ model User {
   surname             String?
   email               String  @unique
   password            String
-  role                String? //admin(profes) vip(alumno) null(visitante)
+  role                String? // "admin", "vip", o null para usuario normal
   active              Boolean @default(true)
   acceptNotifications Boolean @default(true)
 
   createdAt DateTime @default(now())
   updateAt  DateTime @updatedAt
 
-  books   Book[]
-  reviews Review[]
+  books       Book[]
+  reviews     Review[]
+  suggestions Suggestion[]
+
+  // Clubes que administra
+  clubsAdmin Club[] @relation("ClubsAdmin")
+
+  // Clubes en los que participa (a través de tabla intermedia)
+  clubMembers ClubMember[]
 }
 
 model Book {
@@ -37,6 +43,7 @@ model Book {
   author      String
   genre       String
   description String?
+  coverUrl    String? // Nullable por si alguna portada no carga
   publishedAt DateTime
 
   createdAt DateTime @default(now())
@@ -48,7 +55,8 @@ model Book {
   idCategory Int?
   category   Category? @relation(fields: [idCategory], references: [id])
 
-  reviews Review[]
+  reviews   Review[]
+  clubBooks ClubBook[] // Libros asociados a clubes
 }
 
 model Review {
@@ -74,4 +82,55 @@ model Category {
   updateAt  DateTime @updatedAt
 
   books Book[]
+}
+
+model Suggestion {
+  id          Int    @id @default(autoincrement())
+  title       String
+  description String
+
+  createdAt DateTime @default(now())
+  updateAt  DateTime @updatedAt
+
+  idUser Int
+  user   User @relation(fields: [idUser], references: [id])
+}
+
+model Club {
+  id          Int     @id @default(autoincrement())
+  name        String
+  description String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  idAdmin Int
+  admin   User @relation("ClubsAdmin", fields: [idAdmin], references: [id])
+
+  members ClubMember[]
+  books   ClubBook[]
+}
+
+model ClubMember {
+  id       Int      @id @default(autoincrement())
+  idClub   Int
+  idUser   Int
+  role     String // "admin" | "member"
+  joinedAt DateTime @default(now())
+
+  club Club @relation(fields: [idClub], references: [id])
+  user User @relation(fields: [idUser], references: [id])
+
+  @@unique([idClub, idUser]) // Evitar miembros duplicados
+}
+
+model ClubBook {
+  id       Int     @id @default(autoincrement())
+  idClub   Int
+  idBook   Int
+  selected Boolean @default(false) // Si es el libro del mes
+  month    String? // Formato: "2025-05"
+
+  club Club @relation(fields: [idClub], references: [id])
+  book Book @relation(fields: [idBook], references: [id])
 }

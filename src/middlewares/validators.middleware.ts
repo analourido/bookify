@@ -28,3 +28,11 @@ export const categoryValidation = [
     body('name').notEmpty().withMessage('Name required')
 ]
 
+export const suggestionValidation = [
+    body('title')
+        .isLength({ min: 2, max: 100 }).withMessage('El título debe tener entre 2 y 100 caracteres'),
+    body('description')
+        .optional()
+        .isLength({ max: 2000 }).withMessage('La descripción no puede superar los 2000 caracteres'),
+];
+

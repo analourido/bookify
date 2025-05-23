@@ -3,6 +3,7 @@ import authRouter from './routes/auth.routes'
 import userRouter from './routes/user.routes'
 import bookRouter from './routes/book.routes'
 import categoryRouter from './routes/category.routes'
+import suggestionRouter from './routes/suggestion.routes'
 
 import rateLimit from 'express-rate-limit'
 import helmet from 'helmet'
@@ -18,7 +19,7 @@ app.use(cookieParser())
 //todo limitar cors
 //cambiar la url cuando deploy
 app.use(cors({
-    origin: ['http://localhost:5174', 'https://bookify-fronted.onrender.com'],
+    origin: ['http://localhost:5173', 'https://bookify-fronted.onrender.com'],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization']
@@ -38,6 +39,7 @@ app.use('/api/auth', authRouter)
 app.use('/api/users', userRouter)
 app.use('/api/books', bookRouter)
 app.use('/api/categories', categoryRouter)
+app.use('/api/suggestions', suggestionRouter)
 // falta la parte de review
 
 app.get('/', (req: Request, res: Response) => {
