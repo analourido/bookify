@@ -6,10 +6,34 @@ import { Book, PrismaClient, User } from "@prisma/client";
 export class BookService {
 
     static async getById(id: number) {
-        const findBook = await prisma.book.findUnique({ where: { id } })
-        if (!findBook) throw new HttpException(404, 'Book not found')
-        return findBook
+        const book = await prisma.book.findUnique({
+            where: { id },
+            include: {
+                category: {
+                    select: { name: true }
+                },
+                reviews: {
+                    orderBy: { createdAt: 'desc' },
+                    include: {
+                        user: { select: { id: true, name: true, surname: true } }
+                    }
+                }
+            }
+        })
+
+        if (!book) throw new HttpException(404, 'Book not found')
+
+        const avg = await prisma.review.aggregate({
+            where: { idBook: id },
+            _avg: { rating: true }
+        })
+
+        return {
+            ...book,
+            averageRating: avg._avg.rating ?? null
+        }
     }
+
 
     static async getAll(searchQuery: string = '') {
 
@@ -43,11 +67,23 @@ export class BookService {
     }
 
     static async create(idUser: number, book: Book) {
-        console.log('creando', idUser)
+        // Comprobar si ya existe un libro con mismo título + autor
+        const existing = await prisma.book.findFirst({
+            where: {
+                title: book.title,
+                author: book.author
+            }
+        })
+
+        if (existing) {
+            throw new HttpException(409, 'Este libro ya está en la base de datos')
+        }
+
         return await prisma.book.create({
             data: {
                 ...book,
-                idUser: idUser
+                publishedAt: new Date(`${book.publishedAt}-01-01`),
+                idUser
             }
         })
     }

@@ -11,6 +11,10 @@ import compression from 'compression'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import morgan from 'morgan'
+import clubRoutes from './routes/club.routes'
+import reviewRoutes from './routes/review.routes'
+import notificationRoutes from './routes/notification.routes'
+import externalBookRoutes from './routes/externalBook.routes'
 
 const app = express()
 
@@ -40,7 +44,10 @@ app.use('/api/users', userRouter)
 app.use('/api/books', bookRouter)
 app.use('/api/categories', categoryRouter)
 app.use('/api/suggestions', suggestionRouter)
-// falta la parte de review
+app.use('/api/clubs', clubRoutes)
+app.use('/api/reviews', reviewRoutes)
+app.use('/api/notifications', notificationRoutes)
+app.use('/api/books', externalBookRoutes)
 
 app.get('/', (req: Request, res: Response) => {
     res.send('Bienvenido al backend de bookify (api rest)')

@@ -1,0 +1,14 @@
+-- CreateTable
+CREATE TABLE "ClubVote" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "idClub" INTEGER NOT NULL,
+    "idUser" INTEGER NOT NULL,
+    "idBook" INTEGER NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "ClubVote_idClub_fkey" FOREIGN KEY ("idClub") REFERENCES "Club" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "ClubVote_idUser_fkey" FOREIGN KEY ("idUser") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "ClubVote_idBook_fkey" FOREIGN KEY ("idBook") REFERENCES "Book" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ClubVote_idClub_idUser_key" ON "ClubVote"("idClub", "idUser");

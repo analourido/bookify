@@ -35,6 +35,12 @@ model User {
 
   // Clubes en los que participa (a través de tabla intermedia)
   clubMembers ClubMember[]
+
+  ClubVote ClubVote[]
+
+  ClubMessage ClubMessage[]
+
+  Notification Notification[]
 }
 
 model Book {
@@ -57,6 +63,8 @@ model Book {
 
   reviews   Review[]
   clubBooks ClubBook[] // Libros asociados a clubes
+
+  ClubVote ClubVote[]
 }
 
 model Review {
@@ -104,11 +112,15 @@ model Club {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  idAdmin Int
-  admin   User @relation("ClubsAdmin", fields: [idAdmin], references: [id])
+  idUser Int
+  admin  User @relation("ClubsAdmin", fields: [idUser], references: [id])
 
   members ClubMember[]
   books   ClubBook[]
+
+  ClubVote ClubVote[]
+
+  ClubMessage ClubMessage[]
 }
 
 model ClubMember {
@@ -134,3 +146,42 @@ model ClubBook {
   club Club @relation(fields: [idClub], references: [id])
   book Book @relation(fields: [idBook], references: [id])
 }
+
+model ClubVote {
+  id        Int      @id @default(autoincrement())
+  idClub    Int
+  idUser    Int
+  idBook    Int
+  createdAt DateTime @default(now())
+
+  club Club @relation(fields: [idClub], references: [id])
+  user User @relation(fields: [idUser], references: [id])
+  book Book @relation(fields: [idBook], references: [id])
+
+  @@unique([idClub, idUser]) // Solo un voto por usuario en cada club
+}
+
+model ClubMessage {
+  id        Int      @id @default(autoincrement())
+  idClub    Int
+  idUser    Int
+  message   String
+  createdAt DateTime @default(now())
+
+  club Club @relation(fields: [idClub], references: [id])
+  user User @relation(fields: [idUser], references: [id])
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  idUser    Int
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [idUser], references: [id])
+}
+
+
+
+

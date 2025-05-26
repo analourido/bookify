@@ -1,20 +1,28 @@
+import { Request, Response, NextFunction } from 'express'
+import jwt from 'jsonwebtoken'
 import { CustomJwtPayload } from '../utils/CustomJwtPayload'
-import { Response, Request, NextFunction } from 'express'
-import jwt from "jsonwebtoken"
+import { HttpException } from '../exceptions/httpException'
 
 const TOKEN_PASSWORD = process.env.TOKEN_PASSWORD || 'pass'
-//TODO quita el any
-export const isAuthenticate = (req: Request, res: Response, next: NextFunction): any => {
 
-    //const token = req.headers.authorization?.split(" ")[1]
-    const token = req.cookies.token
-    if (!token) return res.status(401).json({ error: 'Access denied' })
+export const isAuthenticate = (req: Request, res: Response, next: NextFunction) => {
+  const authHeader = req.headers.authorization
 
-    try {
-        const tokenDecodificado = jwt.verify(token, TOKEN_PASSWORD)
-        req.user = tokenDecodificado as CustomJwtPayload
-        next()
-    } catch (error) {
-        res.status(401).json({ error: 'Invalid token' })
-    }
+  if (!authHeader) {
+    return next(new HttpException(401, 'Access denied'))
+  }
+
+  const [scheme, token] = authHeader.split(' ')
+
+  if (scheme !== 'Bearer' || !token) {
+    return next(new HttpException(401, 'Invalid token format'))
+  }
+
+  try {
+    const decoded = jwt.verify(token, TOKEN_PASSWORD)
+    req.user = decoded as CustomJwtPayload
+    next()
+  } catch (err) {
+    return next(new HttpException(401, 'Invalid or expired token'))
+  }
 }
