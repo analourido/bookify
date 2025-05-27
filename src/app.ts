@@ -20,11 +20,9 @@ const app = express()
 
 
 app.use(cookieParser())
-//todo limitar cors
-//cambiar la url cuando deploy
 app.use(cors({
     origin: ['http://localhost:5173', 'https://bookify-fronted.onrender.com'],
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
@@ -47,7 +45,7 @@ app.use('/api/suggestions', suggestionRouter)
 app.use('/api/clubs', clubRoutes)
 app.use('/api/reviews', reviewRoutes)
 app.use('/api/notifications', notificationRoutes)
-app.use('/api/books', externalBookRoutes)
+app.use('/api/external-books', externalBookRoutes)
 
 app.get('/', (req: Request, res: Response) => {
     res.send('Bienvenido al backend de bookify (api rest)')

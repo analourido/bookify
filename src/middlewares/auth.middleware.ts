@@ -6,16 +6,10 @@ import { HttpException } from '../exceptions/httpException'
 const TOKEN_PASSWORD = process.env.TOKEN_PASSWORD || 'pass'
 
 export const isAuthenticate = (req: Request, res: Response, next: NextFunction) => {
-  const authHeader = req.headers.authorization
+  const token = req.cookies.token 
 
-  if (!authHeader) {
+  if (!token) {
     return next(new HttpException(401, 'Access denied'))
-  }
-
-  const [scheme, token] = authHeader.split(' ')
-
-  if (scheme !== 'Bearer' || !token) {
-    return next(new HttpException(401, 'Invalid token format'))
   }
 
   try {

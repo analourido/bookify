@@ -91,11 +91,19 @@ export class BookService {
     static async update(id: number, book: Book) {
         const findBook = await prisma.book.findUnique({ where: { id } })
         if (!findBook) throw new HttpException(404, 'Book doesnt exists')
+        const cleanData = {
+            title: book.title,
+            author: book.author,
+            genre: book.genre,
+            description: book.description,
+            coverUrl: book.coverUrl,
+            publishedAt: book.publishedAt,
+            idCategory: book.idCategory
+        }
+
         return await prisma.book.update({
             where: { id },
-            data: {
-                ...book,
-            }
+            data: cleanData
         })
     }
 

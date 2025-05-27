@@ -36,7 +36,7 @@ export class AuthController {
                 maxAge: 60 * 60 * 1000 * 3, // 3 horas de caducidad
                 httpOnly: true, // no se puede accerder mediante js
                 secure: process.env.COOKIE_SECURE ? process.env.COOKIE_SECURE === "true" : true,// solo se envia si usas https
-                sameSite: sameSiteValue, // Evita ataques CSRF
+                sameSite: "lax", // Evita ataques CSRF
 
             })
             res.status(201).json({ message: 'Login successfully:', user })
