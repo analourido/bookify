@@ -84,4 +84,38 @@ export class ClubBookController {
     }
   }
 
+  static async deleteBook(req: Request, res: Response, next: NextFunction) {
+    try {
+      const clubId = Number(req.params.id);
+      const clubBookId = Number(req.params.clubBookId);
+      const userId = req.user?.id;
+
+      if (isNaN(clubId) || isNaN(clubBookId) || !userId) {
+        throw new HttpException(400, 'Datos inválidos');
+      }
+
+      // Comprobamos si el usuario es admin
+      const membership = await prisma.clubMember.findUnique({
+        where: { idClub_idUser: { idClub: clubId, idUser: userId } },
+      });
+      if (!membership || membership.role !== 'admin') {
+        throw new HttpException(403, 'No autorizado');
+      }
+
+      // Comprobamos si el libro está asociado al club
+      const clubBook = await prisma.clubBook.findUnique({
+        where: { id: clubBookId },
+      });
+      if (!clubBook || clubBook.idClub !== clubId) {
+        throw new HttpException(404, 'Libro no encontrado en el club');
+      }
+
+      await prisma.clubBook.delete({ where: { id: clubBookId } });
+
+      res.status(204).send();
+    } catch (error) {
+      next(error);
+    }
+  }
+
 }

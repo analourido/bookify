@@ -15,6 +15,9 @@ import clubRoutes from './routes/club.routes'
 import reviewRoutes from './routes/review.routes'
 import notificationRoutes from './routes/notification.routes'
 import externalBookRoutes from './routes/externalBook.routes'
+import statisticsRoutes from './routes/statistics.routes'
+import readingHistoryRoutes from './routes/readingHistory.routes'
+import readingListRouter from './routes/readingList.routes'
 
 const app = express()
 
@@ -46,6 +49,10 @@ app.use('/api/clubs', clubRoutes)
 app.use('/api/reviews', reviewRoutes)
 app.use('/api/notifications', notificationRoutes)
 app.use('/api/external-books', externalBookRoutes)
+app.use('/api/statistics', statisticsRoutes)
+app.use('/api/reading-history', readingHistoryRoutes);
+app.use('/api/my-reading-lists', readingListRouter)
+
 
 app.get('/', (req: Request, res: Response) => {
     res.send('Bienvenido al backend de bookify (api rest)')

@@ -21,8 +21,6 @@ export class ClubService {
     }
 
 
-
-
     static async getUserClubs(userId: number) {
         const memberships = await prisma.clubMember.findMany({
             where: { idUser: userId },
@@ -38,39 +36,47 @@ export class ClubService {
         return memberships.map((m) => m.club)
     }
 
-    static async getById(id: number) {
+    static async getById(clubId: number) {
         const club = await prisma.club.findUnique({
-            where: { id },
+            where: { id: clubId },
             include: {
-                admin: { select: { id: true, name: true } },
+                books: {
+                    include: {
+                        book: {
+                            select: { id: true, title: true, author: true, genre: true, coverUrl: true }
+                        }
+                    }
+                },
                 members: {
                     include: {
-                        user: {
-                            select: { id: true, name: true },
-                        },
-                    },
+                        user: { select: { id: true, name: true } }
+                    }
                 },
-                books: {
-                    where: { selected: true },
-                    select: {
-                        month: true,
-                        book: {
-                            select: {
-                                id: true,
-                                title: true,
-                                author: true,
-                                genre: true,
-                                coverUrl: true,
-                            },
-                        },
-                    },
-                },
-            },
+                ClubVote: true,
+                admin: { select: { id: true, name: true } }
+            }
         })
 
-        if (!club) throw new HttpException(404, 'Club not found')
+        if (!club) throw new HttpException(404, "Club no encontrado")
+
         return club
     }
+
+    static async getAllClubs(search?: string) {
+        return await prisma.club.findMany({
+            where: search
+                ? {
+                    OR: [
+                        { name: { contains: search } },
+                        { admin: { name: { contains: search } } }
+                    ]
+                }
+                : {},
+            include: { admin: true }
+        });
+    }
+
+
 
     static async update(id: number, userId: number, data: { name?: string; description?: string }) {
         const club = await prisma.club.findUnique({ where: { id } })

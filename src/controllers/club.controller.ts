@@ -23,6 +23,18 @@ export class ClubController {
     }
 
 
+    static async getAllClubs(req: Request, res: Response, next: NextFunction) {
+        try {
+            const search = req.query.search as string | undefined;
+            const clubs = await ClubService.getAllClubs(search);
+            res.status(200).json(clubs);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+
+
     static async getAllForUser(req: Request, res: Response, next: NextFunction) {
         try {
             const userId = req.user?.id

@@ -13,6 +13,7 @@ const router = Router()
 
 router.post('/', isAuthenticate, clubValidation, ValidationMiddleware, ClubController.create)
 router.get('/', isAuthenticate, ClubController.getAllForUser)
+router.get('/all', isAuthenticate, ClubController.getAllClubs);
 router.get('/:id', isAuthenticate, ClubController.getById)
 router.patch('/:id', isAuthenticate, isClubAdmin, clubUpdateValidation, ValidationMiddleware, ClubController.update)
 router.delete('/:id', isAuthenticate, isClubAdmin, ClubController.delete)
@@ -24,6 +25,7 @@ router.post('/:id/leave', isAuthenticate, ClubController.leave)
 router.post('/:id/books', isAuthenticate, clubBookValidation, ValidationMiddleware, ClubBookController.addBook)
 router.get('/:id/books', isAuthenticate, ClubBookController.listBooks)
 router.patch('/:id/books/:bookId/select', isAuthenticate, isClubAdmin, ClubBookController.selectBook)
+router.delete('/:id/books/:clubBookId', isAuthenticate, ClubBookController.deleteBook);
 
 // Miembros del club
 router.patch('/:id/members/:memberId/role', isAuthenticate, isClubAdmin, ClubController.delegateAdmin)
