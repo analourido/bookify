@@ -161,6 +161,118 @@ export class ClubController {
         }
     }
 
+    static async resetAllBooks(req: Request, res: Response, next: NextFunction) {
+        try {
+            const clubId = Number(req.params.id)
+            if (isNaN(clubId)) throw new HttpException(400, 'ID inválido')
+
+            await prisma.clubBook.deleteMany({ where: { idClub: clubId } })
+            res.status(200).json({ message: 'Todos los libros eliminados correctamente' })
+        } catch (error) {
+            next(error)
+        }
+    }
+
+    static async resetSelectedBook(req: Request, res: Response, next: NextFunction) {
+        try {
+            const clubId = Number(req.params.id)
+            if (isNaN(clubId)) throw new HttpException(400, 'ID inválido')
+
+            await prisma.clubBook.deleteMany({ where: { idClub: clubId, selected: true } })
+            res.status(200).json({ message: 'Libro del mes eliminado correctamente' })
+        } catch (error) {
+            next(error)
+        }
+    }
+
+    static async vote(req: Request, res: Response, next: NextFunction) {
+        try {
+            const idUser = req.user?.id;
+            const idClub = Number(req.params.id);
+            const { idBook } = req.body;
+
+            if (!idUser || !idBook || isNaN(idClub)) {
+                throw new HttpException(400, "Datos inválidos");
+            }
+
+            const existingVote = await prisma.clubVote.findUnique({
+                where: { idClub_idUser: { idClub, idUser } },
+            });
+
+            if (existingVote) {
+                await prisma.clubVote.update({
+                    where: { idClub_idUser: { idClub, idUser } },
+                    data: { idBook },
+                });
+            } else {
+                await prisma.clubVote.create({
+                    data: { idClub, idUser, idBook },
+                });
+            }
+
+            res.status(200).json({ message: "Voto registrado correctamente" });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    static async getVotes(req: Request, res: Response, next: NextFunction) {
+        try {
+            const idClub = Number(req.params.id);
+            if (isNaN(idClub)) throw new HttpException(400, "ID inválido");
+
+            const votes = await prisma.clubVote.findMany({
+                where: { idClub },
+                include: {
+                    book: true,
+                    user: { select: { id: true, name: true } },
+                },
+            });
+
+            res.status(200).json(votes);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    static async getMostVoted(req: Request, res: Response, next: NextFunction) {
+        try {
+            const idClub = Number(req.params.id);
+            if (isNaN(idClub)) throw new HttpException(400, "ID inválido");
+
+            const votes = await prisma.clubVote.findMany({
+                where: { idClub },
+                select: { idBook: true, book: true },
+            });
+
+            const voteCount: { [idBook: number]: { book: any; count: number } } = {};
+
+            votes.forEach((vote) => {
+                if (!voteCount[vote.idBook]) {
+                    voteCount[vote.idBook] = { book: vote.book, count: 0 };
+                }
+                voteCount[vote.idBook].count++;
+            });
+
+            const sorted = Object.values(voteCount).sort((a, b) => b.count - a.count);
+
+            res.status(200).json(sorted);
+        } catch (error) {
+            next(error);
+        }
+    }
+    
+    static async removeVote(req: Request, res: Response, next: NextFunction) {
+        try {
+            const clubId = Number(req.params.id)
+            const userId = req.user.id
+
+            const deletedVote = await ClubService.removeVote(clubId, userId)
+            res.status(200).json({ message: 'Voto eliminado', deletedVote })
+        } catch (error) {
+            next(error)
+        }
+    }
 
 }
 

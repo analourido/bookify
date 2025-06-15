@@ -219,5 +219,25 @@ export class ClubService {
         })
     }
 
+    static async removeVote(clubId: number, userId: number) {
+        // Verificamos que exista un voto previo
+        const existingVote = await prisma.clubVote.findFirst({
+            where: {
+                idClub: clubId,
+                idUser: userId,
+            },
+        });
+
+        if (!existingVote) {
+            throw new HttpException(404, 'No hay voto previo para eliminar');
+        }
+
+        // Elimina el voto
+        return await prisma.clubVote.delete({
+            where: { id: existingVote.id },
+        });
+    }
+
+
 }
 

@@ -118,4 +118,41 @@ export class ClubBookController {
     }
   }
 
+  static async getBookHistory(req: Request, res: Response, next: NextFunction) {
+    try {
+      const clubId = Number(req.params.id);
+      if (isNaN(clubId)) throw new HttpException(400, 'ID de club inválido');
+
+      const userId = req.user?.id;
+      if (!userId) throw new HttpException(401, 'No autorizado');
+
+      // Obtenemos el historial ordenado por mes (desc)
+      const history = await prisma.clubBook.findMany({
+        where: { idClub: clubId },
+        include: {
+          book: {
+            select: {
+              id: true,
+              title: true,
+              author: true,
+              coverUrl: true
+            }
+          }
+        },
+        orderBy: { month: 'desc' }
+      });
+
+      // Mapeamos para devolver solo lo necesario
+      const formattedHistory = history.map((entry) => ({
+        id: entry.id,
+        month: entry.month || 'Desconocido',
+        book: entry.book
+      }));
+
+      res.status(200).json(formattedHistory);
+    } catch (error) {
+      next(error);
+    }
+  }
+
 }

@@ -8,6 +8,6 @@ const router = Router()
 
 router.post('/:bookId', isAuthenticate, reviewValidation, ValidationMiddleware, ReviewController.create)
 router.get('/:bookId', ReviewController.getByBook)
-router.delete('/:bookId', isAuthenticate, ReviewController.delete)
+router.delete('/:idBook/:idUser', isAuthenticate, ReviewController.delete);
 
 export default router

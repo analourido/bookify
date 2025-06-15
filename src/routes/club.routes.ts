@@ -39,4 +39,19 @@ router.get('/:id/most-voted', isAuthenticate, ClubVoteController.getMostVoted)
 router.post('/:id/messages', isAuthenticate, ClubMessageController.create)
 router.get('/:id/messages', isAuthenticate, ClubMessageController.getAll)
 
+// Historial de libros del club
+router.get('/:id/book-history', isAuthenticate, ClubBookController.getBookHistory);
+
+// RESET libros (solo admin)
+router.delete('/:id/reset-all-books', isAuthenticate, isClubAdmin, ClubController.resetAllBooks);
+router.delete('/:id/reset-selected-book', isAuthenticate, isClubAdmin, ClubController.resetSelectedBook);
+
+// Votaciones del club
+router.post("/:id/vote", isAuthenticate, ClubController.vote);
+router.get("/:id/votes", isAuthenticate, ClubController.getVotes);
+router.get("/:id/most-voted", isAuthenticate, ClubController.getMostVoted);
+router.delete('/:id/vote', isAuthenticate, ClubController.removeVote)
+
+
+
 export default router
