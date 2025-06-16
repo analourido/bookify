@@ -33,10 +33,11 @@ export class AuthController {
 
 
             res.cookie('token', token, {
-                maxAge: 60 * 60 * 1000 * 3,     // 3 horas
-                httpOnly: true,
-                secure: true,                  // Asegúrate de usar HTTPS en producción
-                sameSite: "none",
+                maxAge: 60 * 60 * 1000 * 3, // 3 horas de caducidad
+                httpOnly: true, // no se puede accerder mediante js
+                secure: process.env.COOKIE_SECURE ? process.env.COOKIE_SECURE === "true" : true,// solo se envia si usas https
+                sameSite: "none", // Evita ataques CSRF
+
             })
             res.status(201).json({ message: 'Login successfully:', user })
         } catch (error) {
