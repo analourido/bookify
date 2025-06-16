@@ -23,12 +23,11 @@ const app = express()
 
 
 app.use(cookieParser())
-app.use(cors({
-    origin: ['http://localhost:5173', 'https://bookify-fronted.vercel.app'],
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-    credentials: true
-}));
-
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', 'https://bookify-fronted.vercel.app');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    next();
+});
 app.use(express.json())
 app.use(helmet())
 app.use(compression())
